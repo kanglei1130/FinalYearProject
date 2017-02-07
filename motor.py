@@ -3,41 +3,58 @@ import sys
 import time
 import RPi.GPIO as GPIO
 
-# Use BCM GPIO references
-# instead of physical pin numbers
-#GPIO.setmode(GPIO.BCM)
-mode=GPIO.getmode()
-print " mode ="+str(mode)
 GPIO.cleanup()
+GPIO.setmode(GPIO.BCM)
 
-# Define GPIO signals to use
-# Physical pins 11,15,16,18
-# GPIO17,GPIO22,GPIO23,GPIO24
+GPIO.setup(22, GPIO.OUT)
+GPIO.setup(27, GPIO.OUT)
+GPIO.setup(6, GPIO.OUT)
+GPIO.setup(5, GPIO.OUT)
 
-StepPinForward=16
-StepPinBackward=18
+RIGHT_Forward=GPIO.PWM(6, 50)
+RIGHT_Backward=GPIO.PWM(5, 50)
+
+LEFT_Forward=GPIO.PWM(22, 50)
+LEFT_Backward=GPIO.PWM(27, 50)
 sleeptime=1
 
-GPIO.setmode(GPIO.BOARD)
-GPIO.setup(StepPinForward, GPIO.OUT)
-GPIO.setup(StepPinBackward, GPIO.OUT)
-
 def forward(x):
-    GPIO.output(StepPinForward, GPIO.HIGH)
-    print "forwarding running  motor "
+    LEFT_Forward.start(50)
+    RIGHT_Forward.start(50) 
     time.sleep(x)
-    GPIO.output(StepPinForward, GPIO.LOW)
+    LEFT_Forward.stop(50)
+    RIGHT_Forward.stop(50)
+    time.sleep(.5)
 
 def reverse(x):
-    GPIO.output(StepPinBackward, GPIO.HIGH)
-    print "backwarding running motor"
+    LEFT_Backward.start(50)
+    RIGHT_Backward.start(50) 
     time.sleep(x)
-    GPIO.output(StepPinBackward, GPIO.LOW)
+    LEFT_Backward.stop(50)
+    RIGHT_Backward.stop(50)
+    time.sleep(.5)
 
-print "forward motor "
-forward(5)
-print "reverse motor"
-reverse(5)
+    
+def left(x):
+    LEFT_Backward.start(50)
+    RIGHT_Forward.start(50) 
+    time.sleep(x)
+    LEFT_Backward.stop(50)
+    RIGHT_Forward.stop(50)
+    time.sleep(.5)
 
-print "Stopping motor"
+    
+def right(x):
+    LEFT_Forward.start(50)
+    RIGHT_Backward.start(50) 
+    time.sleep(x)
+    LEFT_Forward.stop(50)
+    RIGHT_Backward.stop(50)
+    time.sleep(.5)
+
+while (1):
+    forward(.3)
+    left(.5)
+    right(.9)
+    left(.5)
 GPIO.cleanup()
