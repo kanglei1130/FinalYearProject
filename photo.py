@@ -23,13 +23,11 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
     image = image[80:440,0:640]
     cv2.imshow("Frame", image)
     
-        
     if input_state == True:
         i+=1
-        print 'Stop_'+ str(i) +'.png Saved!... waiting 3 seconds'
-        cv2.imwrite('STOP/Stop_'+ str(i) +'.png',image)
-        
-        time.sleep(3)
-        
+        print 'BG_'+ str(i) +'.png Saved!... waiting 1 seconds'
+        cv2.imwrite('BG/BG_'+ str(i) +'.png',image)
+        time.sleep(1)
+   
     key = cv2.waitKey(1) & 0xFF
     rawCapture.truncate(0)

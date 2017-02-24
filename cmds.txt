@@ -1,0 +1,18 @@
+RIGHT_BG.txt 1849
+LEFT_BG.txt 1849
+STOP_BG.txt 1849
+Traffic_BG.txt 1664
+
+RIGHT.info 115
+LEFT.info 115
+STOP.info 115
+Traffic.info 300
+
+RIGHT.vec 48 48
+LEFT.vec 48 48
+STOP.vec 48 48
+Traffic.vec 48 96
+
+opencv_createsamples -info TRAFFIC.info num -300 -w 48 -h 96 -vec TRAFFIC.vec
+
+opencv_traincascade -data Data -vec TRAFFIC.vec -bg TRAFFIC_BG.txt -numPos 300 -numNeg 1663 -numStages 2 -w 48 -h 96 -featureType LBP
