@@ -1,0 +1,1 @@
+opencv_traincascade -data DataRight -vec RIGHT.vec -bg RIGHT_BG.txt -numPos 115 -numNeg 1849 -numStages 4 -w 48 -h 48 -featureType LBP -minHitRate 0.9995 -maxFalseAlarm 0.3
