@@ -26,8 +26,8 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
     Rgray = cv2.cvtColor(RROI,cv2.COLOR_BGR2GRAY)
     Redges = cv2.Canny(Rgray,100,200,apertureSize = 3)
     
-    Llines = cv2.HoughLinesP(Ledges,1,np.pi/180,10,2,2)
-    Rlines = cv2.HoughLinesP(Redges,1,np.pi/180,10,2,2)
+    Llines = cv2.HoughLinesP(Ledges,1,np.pi/180,10,100,2)
+    Rlines = cv2.HoughLinesP(Redges,1,np.pi/180,10,100,2)
     
     cv2.rectangle(image,(50,380),(200,480),(0,0,255),2)
     cv2.rectangle(image,(440,380),(590,480),(0,0,255),2)
@@ -68,8 +68,8 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
     #print("RAVG: "+ str(int(RAVG)))
     #print("DIFF: "+ str(diff))
     cv2.line(image,(320+diff,380),(320+diff,420),(0,255,0),1)
-    cv2.putText(image,str(int(LAVG)),(100,410), font, 1,(0,255,0),2)
-    cv2.putText(image,str(int(RAVG)),(500,410), font, 1,(0,255,0),2)
+    cv2.putText(image,str(int(LAVG)),(100,360), font, 1,(0,255,0),2)
+    cv2.putText(image,str(int(RAVG)),(500,360), font, 1,(0,255,0),2)
     cv2.putText(image,str(diff),(280,370), font, 1,(0,255,255),2)
 
     
