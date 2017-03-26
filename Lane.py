@@ -5,6 +5,7 @@ import cv2
 import numpy as np
 import sys
 
+
 camera = PiCamera()
 camera.resolution = (640, 480)
 camera.framerate = 5
