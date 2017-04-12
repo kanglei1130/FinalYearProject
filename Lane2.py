@@ -4,7 +4,7 @@ import time
 import cv2
 import numpy as np
 import sys
-
+import math
 from pykalman import KalmanFilter
 
 kf = KalmanFilter(initial_state_mean = 0, n_dim_obs=1)
@@ -19,6 +19,8 @@ Left_CAVG=[]
 Left_MAVG=[]
 Right_CAVG=[]
 Right_MAVG=[]
+RAVG_OLD = 1
+LAVG_OLD = 1
 for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
 
     
@@ -42,11 +44,15 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
     Leftlist=[]
     try:
         LAVGT = 0
+
         for x1,y1,x2,y2 in Llines[0]:
              
             angle = np.arctan2(y2 - y1, x2 - x1) * 180. / np.pi
             if(angle >= 45 and angle <= 135 or angle <= -45 and angle >= -135 ):
                 cv2.line(image,(x1+50,y1+380),(x2+50,y2+380),(0,255,0),2)
+                if float(x2-x1) == 0:
+                    x1 = 0.001
+                    x2 = 0.002
                 LM =(float(y2-y1)/float(x2-x1))
                 LC = y1 - (LM * x1)
                 Left_CAVG.append(LC)
@@ -54,21 +60,28 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
                 
         LC = np.mean(Left_CAVG)
         LM = np.mean(Left_MAVG)
+        print("Left ", LM)      
         LX = (100 - LC) / LM
         LAVG = LX
-                
-                
+        LAVG_OLD = LAVG
+        Left_CAVG =[]
+        Left_MAVG =[]
+         
     except:
-        RAVG = 1
-        LAVG = 1
+        LAVG = LAVG_OLD
+
 
     try:
         RAVGT = 0
+
         for x1,y1,x2,y2 in Rlines[0]:
 
             angle = np.arctan2(y2 - y1, x2 - x1) * 180. / np.pi
             if(angle >= 45 and angle <= 135 or angle <= -45 and angle >= -135 ):
                 cv2.line(image,(x1+440,y1+380),(x2+440,y2+380),(0,255,0),2)
+                if float(x2-x1) == 0:
+                    x1 = 0.001
+                    x2 = 0.002
                 RM=(float(y2-y1)/float(x2-x1))
                 RC= y1 - (RM * x1) 
                 Right_CAVG.append(RC)
@@ -76,24 +89,22 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
                 
         RC = np.mean(Right_CAVG)
         RM = np.mean(Right_MAVG)
+        print("Right ", RM)  
         RX = (100 - RC) / RM
         RAVG = RX
-               
-
-               
+        RAVG_OLD = RAVG
+        Right_MAVG=[]
+        Right_CAVG=[]
 
     except:
-        RAVG = 1
-        LAVG = 1
-        
+        RAVG = RAVG_OLD
+    
     diff =int(LAVG)-int(RAVG)
-
-
     cv2.line(image,(320+diff,380),(320+diff,420),(0,255,0),1)
     cv2.putText(image,str(int(LAVG)),(100,360), font, 1,(0,255,0),2)
     cv2.putText(image,str(int(RAVG)),(500,360), font, 1,(0,255,0),2)
     cv2.putText(image,str(diff),(280,370), font, 1,(0,255,255),2)
     cv2.imshow("Frame", image)
     key = cv2.waitKey(1) & 0xFF
-
     rawCapture.truncate(0)
+
