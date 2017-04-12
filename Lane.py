@@ -7,7 +7,7 @@ import sys
 
 from pykalman import KalmanFilter
 
-
+kf = KalmanFilter(initial_state_mean = 0, n_dim_obs=1)
 
 camera = PiCamera()
 camera.resolution = (640, 480)
@@ -15,7 +15,8 @@ camera.framerate = 5
 rawCapture = PiRGBArray(camera, size=(640, 480))
 time.sleep(0.5)
 font = cv2.FONT_HERSHEY_SIMPLEX
-
+Leftlist=[]
+Rightlist=[]
 for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
 
     
@@ -30,12 +31,13 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
     Rgray = cv2.cvtColor(RROI,cv2.COLOR_BGR2GRAY)
     Redges = cv2.Canny(Rgray,100,200,apertureSize = 3)
     
-    Llines = cv2.HoughLinesP(Ledges,1,np.pi/180,10,100,2)
-    Rlines = cv2.HoughLinesP(Redges,1,np.pi/180,10,100,2)
+    Llines = cv2.HoughLinesP(Ledges,1,np.pi/180,10,10,2)
+    Rlines = cv2.HoughLinesP(Redges,1,np.pi/180,10,10,2)
     
     cv2.rectangle(image,(50,380),(200,480),(0,0,255),2)
     cv2.rectangle(image,(440,380),(590,480),(0,0,255),2)
     cv2.line(image,(320,300),(320,480),(255,0,0),2)
+    
     try:
         LAVGT = 0
         for x1,y1,x2,y2 in Llines[0]:
@@ -46,15 +48,14 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
                 LAVG = np.mean(Llines[0], axis=0)
                 LAVG = np.delete(LAVG,1)
                 LAVG = np.delete(LAVG,2)
-                LAVG = np.mean(LAVG)
-                LAVGK = KalmanFilter(initial_state_mean=0,n_dim_obs=2)
-                LAVG = LAVGK.em(LAVG)
-                print("LEFT")
-
+##                LAVG = np.mean(LAVG) 
+                  
+                kf.em(LAVG, n_iter=25)
+                LAVG = kf.filter(LAVG)
+                LAVG = int(np.mean(LAVG))
+                print("LEFT: " +str(LAVG))
+##                Leftlist=[]
                 
-                
-                    
-                          
     except:
         RAVG = 1
         LAVG = 1
@@ -70,6 +71,14 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
                 RAVG = np.delete(RAVG,1)
                 RAVG = np.delete(RAVG,2)
                 RAVG = np.mean(RAVG)
+                
+                Rightlist.append(RAVG)
+                if len(Rightlist) >= 200:
+                    RAVG2 = np.mean(Rightlist)
+##                    print("Right: " +str(RAVG2))
+##                    print("DIff " +str(RAVG2 - LAVG2))
+                    Rightlist=[]
+
     except:
         RAVG = 1
         LAVG = 1     
@@ -81,8 +90,9 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
     cv2.putText(image,str(int(LAVG)),(100,360), font, 1,(0,255,0),2)
     cv2.putText(image,str(int(RAVG)),(500,360), font, 1,(0,255,0),2)
     cv2.putText(image,str(diff),(280,370), font, 1,(0,255,255),2)
-
-    
+    Ledges = np.fliplr(Ledges)
+    cv2.imshow("L", Ledges)
+    cv2.imshow("R", Redges)
     cv2.imshow("Frame", image)
     key = cv2.waitKey(1) & 0xFF
 
