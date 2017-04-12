@@ -1,10 +1,12 @@
 from picamera.array import PiRGBArray
 from picamera import PiCamera
-
+import time
 import cv2
 import numpy as np
 import sys
+
 from pykalman import KalmanFilter
+
 
 
 camera = PiCamera()
@@ -33,7 +35,7 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
     
     cv2.rectangle(image,(50,380),(200,480),(0,0,255),2)
     cv2.rectangle(image,(440,380),(590,480),(0,0,255),2)
-    cv2.line(image,(320,380),(320,420),(255,0,0),2)
+    cv2.line(image,(320,300),(320,480),(255,0,0),2)
     try:
         LAVGT = 0
         for x1,y1,x2,y2 in Llines[0]:
@@ -45,7 +47,13 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
                 LAVG = np.delete(LAVG,1)
                 LAVG = np.delete(LAVG,2)
                 LAVG = np.mean(LAVG)
+                LAVGK = KalmanFilter(initial_state_mean=0,n_dim_obs=2)
+                LAVG = LAVGK.em(LAVG)
+                print("LEFT")
+
                 
+                
+                    
                           
     except:
         RAVG = 1
