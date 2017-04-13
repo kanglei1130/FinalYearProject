@@ -7,11 +7,8 @@ import sys
 import math
 from pykalman import KalmanFilter
 
-kf = KalmanFilter(initial_state_mean = 0, n_dim_obs=1)
-
 camera = PiCamera()
 camera.resolution = (640, 480)
-camera.framerate = 5
 rawCapture = PiRGBArray(camera, size=(640, 480))
 time.sleep(0.5)
 font = cv2.FONT_HERSHEY_SIMPLEX
@@ -21,13 +18,41 @@ Right_CAVG=[]
 Right_MAVG=[]
 RAVG_OLD = 1
 LAVG_OLD = 1
-for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
+LC_OLD = 1
+LM_OLD = 1
+RC_OLD = 1
+RM_OLD = 1
 
-    
+
+# specify parameters
+random_state = np.random.RandomState(0)
+transition_matrix = [[1, 0.1], [0, 1]]
+transition_offset = [-0.1, 0.1]
+observation_matrix = np.eye(2) + random_state.randn(2, 2) * 0.1
+observation_offset = [1.0, -1.0]
+transition_covariance = np.eye(2)
+observation_covariance = np.eye(2) + random_state.randn(2, 2) * 0.1
+initial_state_mean = [5, -5]
+initial_state_covariance = [[1, 0.1], [-0.1, 1]]
+
+# sample from model
+kf = KalmanFilter(
+    transition_matrix, observation_matrix, transition_covariance,
+    observation_covariance, transition_offset, observation_offset,
+    initial_state_mean, initial_state_covariance,
+    random_state=random_state
+)
+
+
+for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
+  
     image = frame.array
+
+
     LROI = image[380:480,50:200]
-    LROI = np.fliplr(LROI)
     RROI = image[380:480,440:590]
+    cv2.normalize(LROI,LROI,0,255,cv2.NORM_MINMAX)
+    cv2.normalize(RROI,RROI,0,255,cv2.NORM_MINMAX)
     
     Lgray = cv2.cvtColor(LROI,cv2.COLOR_BGR2GRAY)
     Ledges = cv2.Canny(Lgray,100,200,apertureSize = 3)
@@ -41,10 +66,10 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
     cv2.rectangle(image,(50,380),(200,480),(0,0,255),2)
     cv2.rectangle(image,(440,380),(590,480),(0,0,255),2)
     cv2.line(image,(320,300),(320,480),(255,0,0),2)
-    Leftlist=[]
+
+
     try:
         LAVGT = 0
-
         for x1,y1,x2,y2 in Llines[0]:
              
             angle = np.arctan2(y2 - y1, x2 - x1) * 180. / np.pi
@@ -60,20 +85,27 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
                 
         LC = np.mean(Left_CAVG)
         LM = np.mean(Left_MAVG)
-        print("Left ", LM)      
+        
+        if math.isnan(LM) == 1:
+            LM = LM_OLD
+        if math.isnan(LC) == 1:
+            LC = LC_OLD
+
         LX = (100 - LC) / LM
-        LAVG = LX
+
+        LAVG = LX-150
         LAVG_OLD = LAVG
+        LC_OLD = LC
+        LM_OLD = LM
         Left_CAVG =[]
         Left_MAVG =[]
-         
+        
     except:
         LAVG = LAVG_OLD
 
 
     try:
         RAVGT = 0
-
         for x1,y1,x2,y2 in Rlines[0]:
 
             angle = np.arctan2(y2 - y1, x2 - x1) * 180. / np.pi
@@ -89,22 +121,44 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
                 
         RC = np.mean(Right_CAVG)
         RM = np.mean(Right_MAVG)
-        print("Right ", RM)  
+        
+        if math.isnan(RM) == 1:
+            RM = RM_OLD
+        if math.isnan(RC) == 1:
+            RC = RC_OLD
+            
         RX = (100 - RC) / RM
         RAVG = RX
         RAVG_OLD = RAVG
+        RC_OLD = RC
+        RM_OLD = RM
         Right_MAVG=[]
         Right_CAVG=[]
 
     except:
         RAVG = RAVG_OLD
+    diff =int(LAVG)+int(RAVG)
+    diff2 = diff
+    diff3 = diff
+    states, diff = kf.sample(
+        n_timesteps=50,
+        initial_state=initial_state_mean
+    )
+    filtered_state_estimates = kf.filter(diff2)
+    smoothed_state_estimates = kf.smooth(diff3)
     
-    diff =int(LAVG)-int(RAVG)
+    cv2.putText(image,str(diff),(280,370), font, 1,(0,255,255),2)
     cv2.line(image,(320+diff,380),(320+diff,420),(0,255,0),1)
+
+    #cv2.putText(image,str(diff2),(280,320), font, 1,(0,255,255),2)
+    #cv2.line(image,(320+diff2,380),(320+diff2,420),(0,255,0),1)    
+    
     cv2.putText(image,str(int(LAVG)),(100,360), font, 1,(0,255,0),2)
     cv2.putText(image,str(int(RAVG)),(500,360), font, 1,(0,255,0),2)
-    cv2.putText(image,str(diff),(280,370), font, 1,(0,255,255),2)
+        
     cv2.imshow("Frame", image)
+##    cv2.imshow("L", Ledges)
+##    cv2.imshow("R", Redges)
     key = cv2.waitKey(1) & 0xFF
     rawCapture.truncate(0)
 
