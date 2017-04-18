@@ -2,10 +2,10 @@ from picamera.array import PiRGBArray
 from picamera import PiCamera
 import time
 import cv2
+import RPi.GPIO as GPIO
 import numpy as np
 import sys
 import math
-from pykalman import KalmanFilter
 
 camera = PiCamera()
 camera.resolution = (640, 480)
@@ -23,25 +23,30 @@ LM_OLD = 1
 RC_OLD = 1
 RM_OLD = 1
 
+GPIO.cleanup()
+GPIO.setmode(GPIO.BCM)
 
-# specify parameters
-random_state = np.random.RandomState(0)
-transition_matrix = [[1, 0.1], [0, 1]]
-transition_offset = [-0.1, 0.1]
-observation_matrix = np.eye(2) + random_state.randn(2, 2) * 0.1
-observation_offset = [1.0, -1.0]
-transition_covariance = np.eye(2)
-observation_covariance = np.eye(2) + random_state.randn(2, 2) * 0.1
-initial_state_mean = [5, -5]
-initial_state_covariance = [[1, 0.1], [-0.1, 1]]
+GPIO.setup(22, GPIO.OUT)
+GPIO.setup(27, GPIO.OUT)
+GPIO.setup(6, GPIO.OUT)
+GPIO.setup(5, GPIO.OUT)
 
-# sample from model
-kf = KalmanFilter(
-    transition_matrix, observation_matrix, transition_covariance,
-    observation_covariance, transition_offset, observation_offset,
-    initial_state_mean, initial_state_covariance,
-    random_state=random_state
-)
+RIGHT_Forward=GPIO.PWM(6, 100)
+RIGHT_Backward=GPIO.PWM(5, 100)
+
+LEFT_Forward=GPIO.PWM(27, 100)
+LEFT_Backward=GPIO.PWM(22, 100)
+
+LEFT_Forward.stop(100)
+RIGHT_Forward.stop(100)
+LEFT_Backward.stop(100)
+RIGHT_Backward.stop(100)
+
+
+def drive(l,r):
+    LEFT_Forward.start(l)
+    RIGHT_Forward.start(r)
+
 
 
 for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
@@ -49,8 +54,8 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
     image = frame.array
 
 
-    LROI = image[380:480,50:200]
-    RROI = image[380:480,440:590]
+    LROI = image[380:480,0:200]
+    RROI = image[380:480,440:640]
     cv2.normalize(LROI,LROI,0,255,cv2.NORM_MINMAX)
     cv2.normalize(RROI,RROI,0,255,cv2.NORM_MINMAX)
     
@@ -63,18 +68,18 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
     Llines = cv2.HoughLinesP(Ledges,1,np.pi/180,10,12,25)
     Rlines = cv2.HoughLinesP(Redges,1,np.pi/180,10,12,25)
     
-    cv2.rectangle(image,(50,380),(200,480),(0,0,255),2)
-    cv2.rectangle(image,(440,380),(590,480),(0,0,255),2)
+    cv2.rectangle(image,(0,380),(200,480),(0,0,255),2)
+    cv2.rectangle(image,(440,380),(640,480),(0,0,255),2)
     cv2.line(image,(320,300),(320,480),(255,0,0),2)
 
 
     try:
         LAVGT = 0
         for x1,y1,x2,y2 in Llines[0]:
-             
+            
             angle = np.arctan2(y2 - y1, x2 - x1) * 180. / np.pi
             if(angle >= 45 and angle <= 135 or angle <= -45 and angle >= -135 ):
-                cv2.line(image,(x1+50,y1+380),(x2+50,y2+380),(0,255,0),2)
+                cv2.line(image,(x1,y1+380),(x2,y2+380),(0,255,0),2)
                 if float(x2-x1) == 0:
                     x1 = 0.001
                     x2 = 0.002
@@ -93,7 +98,7 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
 
         LX = (100 - LC) / LM
 
-        LAVG = LX-150
+        LAVG = LX-200
         LAVG_OLD = LAVG
         LC_OLD = LC
         LM_OLD = LM
@@ -137,28 +142,32 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
 
     except:
         RAVG = RAVG_OLD
+        
     diff =int(LAVG)+int(RAVG)
-    diff2 = diff
-    diff3 = diff
-    states, diff = kf.sample(
-        n_timesteps=50,
-        initial_state=initial_state_mean
-    )
-    filtered_state_estimates = kf.filter(diff2)
-    smoothed_state_estimates = kf.smooth(diff3)
     
     cv2.putText(image,str(diff),(280,370), font, 1,(0,255,255),2)
     cv2.line(image,(320+diff,380),(320+diff,420),(0,255,0),1)
 
-    #cv2.putText(image,str(diff2),(280,320), font, 1,(0,255,255),2)
-    #cv2.line(image,(320+diff2,380),(320+diff2,420),(0,255,0),1)    
-    
     cv2.putText(image,str(int(LAVG)),(100,360), font, 1,(0,255,0),2)
     cv2.putText(image,str(int(RAVG)),(500,360), font, 1,(0,255,0),2)
         
     cv2.imshow("Frame", image)
-##    cv2.imshow("L", Ledges)
-##    cv2.imshow("R", Redges)
+
+    if diff <=50 and diff >= -50:
+        print("Forward")
+        drive(15,15)
+
+    if diff >=50:
+        print("Right")
+        drive(15,15)
+        
+
+    if diff <=-50:
+        print("Left")
+        drive(15,15)
+        
+
+
     key = cv2.waitKey(1) & 0xFF
     rawCapture.truncate(0)
 

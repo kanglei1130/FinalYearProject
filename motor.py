@@ -53,7 +53,8 @@ def right(x):
     time.sleep(.5)
 
 while (1):
-    forward(.3)
+    print("h")
+    forward(.5)
     left(.5)
     right(.9)
     left(.5)

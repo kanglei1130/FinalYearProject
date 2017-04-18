@@ -54,7 +54,7 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
                 if len(Leftlist) >= 24:    
                     kf.em(Leftlist, n_iter=25)
                     Leftlist = kf.smooth(Leftlist)
-                    print("LEFT: " +str(Leftlist))
+                   
                     Leftlist=[]
                 
     except:
