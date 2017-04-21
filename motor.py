@@ -2,7 +2,7 @@
 import sys
 import time
 import RPi.GPIO as GPIO
-
+import cv2
 GPIO.cleanup()
 GPIO.setmode(GPIO.BCM)
 
@@ -11,51 +11,26 @@ GPIO.setup(27, GPIO.OUT)
 GPIO.setup(6, GPIO.OUT)
 GPIO.setup(5, GPIO.OUT)
 
-RIGHT_Forward=GPIO.PWM(6, 50)
-RIGHT_Backward=GPIO.PWM(5, 50)
+RIGHT_Forward=GPIO.PWM(5, 1000)
+RIGHT_Backward=GPIO.PWM(6, 1000)
 
-LEFT_Forward=GPIO.PWM(22, 50)
-LEFT_Backward=GPIO.PWM(27, 50)
+LEFT_Forward=GPIO.PWM(27, 1000)
+LEFT_Backward=GPIO.PWM(22, 1000)
 sleeptime=1
+LEFT_Forward.start(0)
+RIGHT_Forward.start(0) 
 
-def forward(x):
-    LEFT_Forward.start(50)
-    RIGHT_Forward.start(50) 
-    time.sleep(x)
-    LEFT_Forward.stop(50)
-    RIGHT_Forward.stop(50)
-    time.sleep(.5)
 
-def reverse(x):
-    LEFT_Backward.start(50)
-    RIGHT_Backward.start(50) 
-    time.sleep(x)
-    LEFT_Backward.stop(50)
-    RIGHT_Backward.stop(50)
-    time.sleep(.5)
-
-    
-def left(x):
-    LEFT_Backward.start(50)
-    RIGHT_Forward.start(50) 
-    time.sleep(x)
-    LEFT_Backward.stop(50)
-    RIGHT_Forward.stop(50)
-    time.sleep(.5)
-
-    
-def right(x):
-    LEFT_Forward.start(50)
-    RIGHT_Backward.start(50) 
-    time.sleep(x)
-    LEFT_Forward.stop(50)
-    RIGHT_Backward.stop(50)
-    time.sleep(.5)
 
 while (1):
-    print("h")
-    forward(.5)
-    left(.5)
-    right(.9)
-    left(.5)
+   
+
+    
+    LEFT_Forward.ChangeDutyCycle(50)
+    RIGHT_Forward.ChangeDutyCycle(20)
+  
+    k = cv2.waitKey(1) & 0xFF
+    # press 'q' to exit
+    if k == ord('q'):
+        break
 GPIO.cleanup()

@@ -8,6 +8,7 @@ import sys
 import math
 
 camera = PiCamera()
+#camera.framerate = 60
 camera.resolution = (640, 480)
 rawCapture = PiRGBArray(camera, size=(640, 480))
 time.sleep(0.5)
@@ -31,22 +32,20 @@ GPIO.setup(27, GPIO.OUT)
 GPIO.setup(6, GPIO.OUT)
 GPIO.setup(5, GPIO.OUT)
 
-RIGHT_Forward=GPIO.PWM(6, 100)
-RIGHT_Backward=GPIO.PWM(5, 100)
+RIGHT_Forward=GPIO.PWM(5, 100)
+RIGHT_Backward=GPIO.PWM(6, 100)
 
 LEFT_Forward=GPIO.PWM(27, 100)
 LEFT_Backward=GPIO.PWM(22, 100)
 
-LEFT_Forward.stop(100)
-RIGHT_Forward.stop(100)
-LEFT_Backward.stop(100)
-RIGHT_Backward.stop(100)
-
 
 def drive(l,r):
     LEFT_Forward.start(l)
-    RIGHT_Forward.start(r)
-
+    RIGHT_Forward.start(r) 
+    time.sleep(.5)
+    LEFT_Forward.stop(l)
+    RIGHT_Forward.stop(r)
+    
 
 
 for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
@@ -54,8 +53,9 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
     image = frame.array
 
 
-    LROI = image[380:480,0:200]
-    RROI = image[380:480,440:640]
+    LROI = image[330:480,0:200]
+    RROI = image[330:480,440:640]
+    
     cv2.normalize(LROI,LROI,0,255,cv2.NORM_MINMAX)
     cv2.normalize(RROI,RROI,0,255,cv2.NORM_MINMAX)
     
@@ -65,11 +65,11 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
     Rgray = cv2.cvtColor(RROI,cv2.COLOR_BGR2GRAY)
     Redges = cv2.Canny(Rgray,100,200,apertureSize = 3)
     
-    Llines = cv2.HoughLinesP(Ledges,1,np.pi/180,10,12,25)
-    Rlines = cv2.HoughLinesP(Redges,1,np.pi/180,10,12,25)
+    Llines = cv2.HoughLinesP(Ledges,1,np.pi/180,9,10,20)
+    Rlines = cv2.HoughLinesP(Redges,1,np.pi/180,9,10,20)
     
-    cv2.rectangle(image,(0,380),(200,480),(0,0,255),2)
-    cv2.rectangle(image,(440,380),(640,480),(0,0,255),2)
+    cv2.rectangle(image,(0,330),(200,480),(0,0,255),2)
+    cv2.rectangle(image,(440,330),(640,480),(0,0,255),2)
     cv2.line(image,(320,300),(320,480),(255,0,0),2)
 
 
@@ -79,7 +79,7 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
             
             angle = np.arctan2(y2 - y1, x2 - x1) * 180. / np.pi
             if(angle >= 45 and angle <= 135 or angle <= -45 and angle >= -135 ):
-                cv2.line(image,(x1,y1+380),(x2,y2+380),(0,255,0),2)
+                cv2.line(image,(x1,y1+330),(x2,y2+330),(0,255,0),2)
                 if float(x2-x1) == 0:
                     x1 = 0.001
                     x2 = 0.002
@@ -96,7 +96,7 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
         if math.isnan(LC) == 1:
             LC = LC_OLD
 
-        LX = (100 - LC) / LM
+        LX = (150 - LC) / LM
 
         LAVG = LX-200
         LAVG_OLD = LAVG
@@ -115,7 +115,7 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
 
             angle = np.arctan2(y2 - y1, x2 - x1) * 180. / np.pi
             if(angle >= 45 and angle <= 135 or angle <= -45 and angle >= -135 ):
-                cv2.line(image,(x1+440,y1+380),(x2+440,y2+380),(0,255,0),2)
+                cv2.line(image,(x1+440,y1+330),(x2+440,y2+330),(0,255,0),2)
                 if float(x2-x1) == 0:
                     x1 = 0.001
                     x2 = 0.002
@@ -132,7 +132,7 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
         if math.isnan(RC) == 1:
             RC = RC_OLD
             
-        RX = (100 - RC) / RM
+        RX = (150 - RC) / RM
         RAVG = RX
         RAVG_OLD = RAVG
         RC_OLD = RC
@@ -148,26 +148,27 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
     cv2.putText(image,str(diff),(280,370), font, 1,(0,255,255),2)
     cv2.line(image,(320+diff,380),(320+diff,420),(0,255,0),1)
 
-    cv2.putText(image,str(int(LAVG)),(100,360), font, 1,(0,255,0),2)
-    cv2.putText(image,str(int(RAVG)),(500,360), font, 1,(0,255,0),2)
+    cv2.putText(image,str(int(LAVG)),(100,320), font, 1,(0,255,0),2)
+    cv2.putText(image,str(int(RAVG)),(500,320), font, 1,(0,255,0),2)
         
     cv2.imshow("Frame", image)
-
+    time.sleep(.1)
     if diff <=50 and diff >= -50:
         print("Forward")
-        drive(15,15)
+        drive(20,20)
 
-    if diff >=50:
+    if diff >=100:
         print("Right")
-        drive(15,15)
+        drive(10,20)
         
 
-    if diff <=-50:
+    if diff <=-100:
         print("Left")
-        drive(15,15)
+        drive(20,10)
         
 
 
+    GPIO.cleanup()
     key = cv2.waitKey(1) & 0xFF
     rawCapture.truncate(0)
 
