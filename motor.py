@@ -21,16 +21,12 @@ LEFT_Forward.start(0)
 RIGHT_Forward.start(0) 
 
 
-
-while (1):
-   
-
-    
-    LEFT_Forward.ChangeDutyCycle(50)
-    RIGHT_Forward.ChangeDutyCycle(20)
-  
-    k = cv2.waitKey(1) & 0xFF
-    # press 'q' to exit
-    if k == ord('q'):
-        break
+try:
+    while (1):
+        LEFT_Forward.ChangeDutyCycle(100)
+        RIGHT_Forward.ChangeDutyCycle(15)
+except KeyboardInterrupt:
+    print("break")
+    GPIO.cleanup()
+    pass
 GPIO.cleanup()
