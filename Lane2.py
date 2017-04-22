@@ -60,16 +60,12 @@ def right2():
     LEFT_Forward.ChangeDutyCycle(40)
     RIGHT_Forward.ChangeDutyCycle(15)
 
-black = np.uint8([[[0,255,0 ]]])
-hsv_black = cv2.cvtColor(black,cv2.COLOR_BGR2HSV)
-print hsv_black
+
 try:
     for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
       
         image = frame.array
-        hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-        
-        cv2.imshow("hsv", hsv)
+
 
         LROI = image[330:480,0:200]
         RROI = image[330:480,440:640]
@@ -83,8 +79,8 @@ try:
         Rgray = cv2.cvtColor(RROI,cv2.COLOR_BGR2GRAY)
         Redges = cv2.Canny(Rgray,100,200,apertureSize = 3)
         
-        Llines = cv2.HoughLinesP(Ledges,1,np.pi/180,9,10,20)
-        Rlines = cv2.HoughLinesP(Redges,1,np.pi/180,9,10,20)
+        Llines = cv2.HoughLinesP(Ledges,1,np.pi/180,10,12,20)
+        Rlines = cv2.HoughLinesP(Redges,1,np.pi/180,10,12,20)
         
         cv2.rectangle(image,(0,330),(200,480),(0,0,255),2)
         cv2.rectangle(image,(440,330),(640,480),(0,0,255),2)
@@ -93,19 +89,41 @@ try:
 
         try:
             LAVGT = 0
+            
             for x1,y1,x2,y2 in Llines[0]:
                 
                 angle = np.arctan2(y2 - y1, x2 - x1) * 180. / np.pi
                 if(angle >= 45 and angle <= 135 or angle <= -45 and angle >= -135 ):
                     cv2.line(image,(x1,y1+330),(x2,y2+330),(0,255,0),2)
+                    
+                    cv2.line(image,(x1,y1+330),(x1-32,y1+330),(0,0,255),2)
+                    cv2.line(image,(x1-32,y1+330),(x2-32,y2+330),(0,0,255),2)
+                    cv2.line(image,(x2,y2+330),(x2-32,y2+330),(0,0,255),2)
                     if float(x2-x1) == 0:
                         x1 = 0.001
                         x2 = 0.002
                     LM =(float(y2-y1)/float(x2-x1))
                     LC = y1 - (LM * x1)
-                    Left_CAVG.append(LC)
-                    Left_MAVG.append(LM)
                     
+                    LM2 =(float((y2+330)-(y1+330))/float(x2-x1))
+                    LC2 = y1+330 - (LM2 * x1)
+                    accum = []
+                    
+                    for YI in range((y2+330),(y1+330),1):
+                        X=int((YI-LC2)/LM2)
+                        
+                        for XI in range (X-30, X):
+                            if XI >=0:
+                                accum.append(image[YI,XI])
+                                
+                    accum = np.mean(accum)
+                    if accum < 40:
+                        cv2.line(image,(x1,y1+330),(x1-32,y1+330),(0,255,0),2)
+                        cv2.line(image,(x1-32,y1+330),(x2-32,y2+330),(0,255,0),2)
+                        cv2.line(image,(x2,y2+330),(x2-32,y2+330),(0,255,0),2)
+                        Left_CAVG.append(LC)
+                        Left_MAVG.append(LM)
+
             LC = np.mean(Left_CAVG)
             LM = np.mean(Left_MAVG)
             
@@ -133,14 +151,34 @@ try:
 
                 angle = np.arctan2(y2 - y1, x2 - x1) * 180. / np.pi
                 if(angle >= 45 and angle <= 135 or angle <= -45 and angle >= -135 ):
-                    cv2.line(image,(x1+440,y1+330),(x2+440,y2+330),(0,255,0),2)
+                    cv2.line(image,(x1+440,y1+330),(x2+440,y2+330),(0,255,0),2) 
+                    cv2.line(image,(x1+440,y1+330),(x1+440+32,y1+330),(0,0,255),2)
+                    cv2.line(image,(x1+440+32,y1+330),(x2+440+32,y2+330),(0,0,255),2)
+                    cv2.line(image,(x2+440,y2+330),(x2+440+32,y2+330),(0,0,255),2)
                     if float(x2-x1) == 0:
                         x1 = 0.001
                         x2 = 0.002
                     RM=(float(y2-y1)/float(x2-x1))
                     RC= y1 - (RM * x1) 
-                    Right_CAVG.append(RC)
-                    Right_MAVG.append(RM)
+
+                    RM2 =(float((y2+330)-(y1+330))/float((x2+440)-(x1+440)))
+                    RC2 = y1+330 - (RM2 * (x1+440))
+                    accum2 = []
+                    
+                    for YI in range((y1+330),(y2+330),1):
+                        X=int((YI-RC2)/RM2)
+                        for XI in range (X, X+30):
+                            if XI >=0:
+                                accum2.append(image[YI,XI])
+                                
+                    accum2 = np.mean(accum2)
+                    #print accum2
+                    if accum2 < 80:
+                        cv2.line(image,(x1+440,y1+330),(x1+440+32,y1+330),(0,255,0),2)
+                        cv2.line(image,(x1+440+32,y1+330),(x2+440+32,y2+330),(0,255,0),2)
+                        cv2.line(image,(x2+440,y2+330),(x2+440+32,y2+330),(0,255,0),2)
+                        Right_CAVG.append(RC)
+                        Right_MAVG.append(RM)
                     
             RC = np.mean(Right_CAVG)
             RM = np.mean(Right_MAVG)
@@ -170,27 +208,25 @@ try:
         cv2.putText(image,str(int(RAVG)),(500,320), font, 1,(0,255,0),2)
             
         cv2.imshow("Frame", image)
-        cv2.imshow("LEFT", Ledges)
-        cv2.imshow("RIGHT", Redges)
         time.sleep(.1)
         if diff <=50 and diff >= -50:
-            print("Forward")
+           # print("Forward")
             forward()
 
         if diff <=-51 and diff >=-100:
-            print("Right")
+           # print("Right")
             right()
 
         if diff >=51 and diff <=100:
-            print("Left")
+            #print("Left")
             left()
                 
         if diff <=-101:
-            print("Right2")
+            #print("Right2")
             right2()
 
         if diff >=101:
-            print("Left2")
+            #print("Left2")
             left2()
 
         key = cv2.waitKey(1) & 0xFF
