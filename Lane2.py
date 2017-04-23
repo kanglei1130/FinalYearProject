@@ -10,7 +10,6 @@ import math
 camera = PiCamera()
 camera.resolution = (640, 480)
 rawCapture = PiRGBArray(camera, size=(640, 480))
-time.sleep(0.5)
 font = cv2.FONT_HERSHEY_SIMPLEX
 Left_CAVG=[]
 Left_MAVG=[]
@@ -41,25 +40,47 @@ LEFT_Forward.start(0)
 RIGHT_Forward.start(0) 
 
 def forward():
-    LEFT_Forward.ChangeDutyCycle(15)
-    RIGHT_Forward.ChangeDutyCycle(15)
+    LEFT_Forward.ChangeDutyCycle(20)
+    RIGHT_Forward.ChangeDutyCycle(20)
     
 def left():
     LEFT_Forward.ChangeDutyCycle(15)
-    RIGHT_Forward.ChangeDutyCycle(30)
+    RIGHT_Forward.ChangeDutyCycle(25)
 
 def right():
-    LEFT_Forward.ChangeDutyCycle(30)
+    LEFT_Forward.ChangeDutyCycle(25)
     RIGHT_Forward.ChangeDutyCycle(15)
     
 def left2():
     LEFT_Forward.ChangeDutyCycle(15)
-    RIGHT_Forward.ChangeDutyCycle(40)
+    RIGHT_Forward.ChangeDutyCycle(35)
 
 def right2():
-    LEFT_Forward.ChangeDutyCycle(40)
+    LEFT_Forward.ChangeDutyCycle(35)
     RIGHT_Forward.ChangeDutyCycle(15)
 
+
+def left3():
+    LEFT_Forward.ChangeDutyCycle(15)
+    RIGHT_Forward.ChangeDutyCycle(45)
+
+def right3():
+    LEFT_Forward.ChangeDutyCycle(45)
+    RIGHT_Forward.ChangeDutyCycle(15)
+
+
+def left4():
+    LEFT_Forward.ChangeDutyCycle(15)
+    RIGHT_Forward.ChangeDutyCycle(55)
+
+def right4():
+    LEFT_Forward.ChangeDutyCycle(55)
+    RIGHT_Forward.ChangeDutyCycle(15)
+
+    
+def stop():
+    LEFT_Forward.ChangeDutyCycle(0)
+    RIGHT_Forward.ChangeDutyCycle(0)
 
 try:
     for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
@@ -79,8 +100,8 @@ try:
         Rgray = cv2.cvtColor(RROI,cv2.COLOR_BGR2GRAY)
         Redges = cv2.Canny(Rgray,100,200,apertureSize = 3)
         
-        Llines = cv2.HoughLinesP(Ledges,1,np.pi/180,10,12,20)
-        Rlines = cv2.HoughLinesP(Redges,1,np.pi/180,10,12,20)
+        Llines = cv2.HoughLinesP(Ledges,1,np.pi/180,5,6,15)
+        Rlines = cv2.HoughLinesP(Redges,1,np.pi/180,10,6,30)
         
         cv2.rectangle(image,(0,220),(200,480),(0,0,255),2)
         cv2.rectangle(image,(440,220),(640,480),(0,0,255),2)
@@ -93,7 +114,7 @@ try:
             for x1,y1,x2,y2 in Llines[0]:
                 
                 angle = np.arctan2(y2 - y1, x2 - x1) * 180. / np.pi
-                if(angle >= 45 and angle <= 135 or angle <= -45 and angle >= -135 ):
+                if(angle >= 20 and angle <= 160 or angle <= -20 and angle >= -160 ):
                     cv2.line(image,(x1,y1+220),(x2,y2+220),(0,255,0),2)
                     
                     cv2.line(image,(x1,y1+220),(x1-32,y1+220),(0,0,255),2)
@@ -143,6 +164,7 @@ try:
             
         except:
             LAVG = LAVG_OLD
+            #LAVG = -1000
 
 
         try:
@@ -150,7 +172,7 @@ try:
             for x1,y1,x2,y2 in Rlines[0]:
 
                 angle = np.arctan2(y2 - y1, x2 - x1) * 180. / np.pi
-                if(angle >= 45 and angle <= 135 or angle <= -45 and angle >= -135 ):
+                if(angle >= 20 and angle <= 160 or angle <= -20 and angle >= -160 ):
                     cv2.line(image,(x1+440,y1+220),(x2+440,y2+220),(0,255,0),2) 
                     cv2.line(image,(x1+440,y1+220),(x1+440+32,y1+220),(0,0,255),2)
                     cv2.line(image,(x1+440+32,y1+220),(x2+440+32,y2+220),(0,0,255),2)
@@ -197,6 +219,7 @@ try:
 
         except:
             RAVG = RAVG_OLD
+            #RAVG = 2000
             
         diff =int(LAVG)+int(RAVG)
         
@@ -210,24 +233,48 @@ try:
         cv2.imshow("LEFT",Ledges)
         cv2.imshow("Right",Redges)
         if diff <=50 and diff >= -50:
-           # print("Forward")
+            print("Forward")
             forward()
 
         if diff <=-51 and diff >=-100:
-           # print("Right")
+            print("Right")
             right()
 
         if diff >=51 and diff <=100:
-            #print("Left")
+            print("Left")
             left()
                 
-        if diff <=-101:
-            #print("Right2")
+        if diff <=-101 and diff >= -149:
+            print("Right2")
             right2()
 
-        if diff >=101:
-            #print("Left2")
+        if diff >=101 and diff <=149:
+            print("Left2")
             left2()
+
+        if diff <=-150 and diff >= -199:
+            print("Right3")
+            right3()
+
+        if diff >=150 and diff <=199:
+            print("Left3")
+            left3()
+            
+        if diff <=-200 and diff >= -999:
+            print("Right4")
+            right4()
+
+        if diff >=200 and diff <=999:
+            print("Left4")
+            left4()
+
+        if diff >= 1000:
+            print("Stop")
+            stop()
+            
+        if diff <= -1000:
+            print("Stop")
+            stop()
 
         key = cv2.waitKey(1) & 0xFF
         rawCapture.truncate(0)
