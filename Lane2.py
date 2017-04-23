@@ -38,44 +38,79 @@ LEFT_Backward=GPIO.PWM(22, 100)
 
 LEFT_Forward.start(0)
 RIGHT_Forward.start(0) 
-
+LEFT_Backward.start(0)
+RIGHT_Backward.start(0) 
 def forward():
+    LEFT_Backward.stop()
+    RIGHT_Backward.stop()
+    LEFT_Forward.start(0)
+    RIGHT_Forward.start(0) 
     LEFT_Forward.ChangeDutyCycle(20)
     RIGHT_Forward.ChangeDutyCycle(20)
     
 def left():
-    LEFT_Forward.ChangeDutyCycle(15)
-    RIGHT_Forward.ChangeDutyCycle(25)
-
-def right():
-    LEFT_Forward.ChangeDutyCycle(25)
-    RIGHT_Forward.ChangeDutyCycle(15)
-    
-def left2():
+    LEFT_Backward.stop()
+    RIGHT_Backward.stop()
+    LEFT_Forward.start(0)
+    RIGHT_Forward.start(0) 
     LEFT_Forward.ChangeDutyCycle(15)
     RIGHT_Forward.ChangeDutyCycle(35)
 
-def right2():
+def right():
+    LEFT_Backward.stop()
+    RIGHT_Backward.stop()
+    LEFT_Forward.start(0)
+    RIGHT_Forward.start(0) 
     LEFT_Forward.ChangeDutyCycle(35)
+    RIGHT_Forward.ChangeDutyCycle(15)
+    
+def left2():
+    LEFT_Backward.stop()
+    RIGHT_Backward.stop()
+    LEFT_Forward.start(0)
+    RIGHT_Forward.start(0) 
+    LEFT_Forward.ChangeDutyCycle(15)
+    RIGHT_Forward.ChangeDutyCycle(40)
+
+def right2():
+    LEFT_Backward.stop()
+    RIGHT_Backward.stop()
+    LEFT_Forward.start(0)
+    RIGHT_Forward.start(0) 
+    LEFT_Forward.ChangeDutyCycle(40)
     RIGHT_Forward.ChangeDutyCycle(15)
 
 
 def left3():
-    LEFT_Forward.ChangeDutyCycle(15)
-    RIGHT_Forward.ChangeDutyCycle(45)
+    RIGHT_Backward.stop()
+    LEFT_Forward.stop()
+    LEFT_Backward.start(0) 
+    RIGHT_Forward.start(0) 
+    LEFT_Backward.ChangeDutyCycle(30)
+    RIGHT_Forward.ChangeDutyCycle(30)
 
 def right3():
-    LEFT_Forward.ChangeDutyCycle(45)
-    RIGHT_Forward.ChangeDutyCycle(15)
+    LEFT_Backward.stop()
+    RIGHT_Forward.stop()
+    RIGHT_Backward.start(0)
+    LEFT_Forward.start(0)
+    RIGHT_Backward.ChangeDutyCycle(30)
+    LEFT_Forward.ChangeDutyCycle(30)
 
 
 def left4():
-    LEFT_Forward.ChangeDutyCycle(15)
-    RIGHT_Forward.ChangeDutyCycle(55)
+    RIGHT_Backward.stop()
+    LEFT_Forward.stop()
+    LEFT_Backward.start(0) 
+    RIGHT_Forward.start(0) 
+    LEFT_Backward.ChangeDutyCycle(40)
+    RIGHT_Forward.ChangeDutyCycle(50)
 
 def right4():
-    LEFT_Forward.ChangeDutyCycle(55)
-    RIGHT_Forward.ChangeDutyCycle(15)
+    LEFT_Backward.stop()
+    RIGHT_Forward.stop()
+    RIGHT_Backward.ChangeDutyCycle(40)
+    LEFT_Forward.ChangeDutyCycle(50)
 
     
 def stop():
