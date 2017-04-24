@@ -10,7 +10,7 @@ camera = PiCamera()
 camera.resolution = (640, 480)
 camera.framerate = 32
 rawCapture = PiRGBArray(camera, size=(640, 480))
-i = 500;
+i = 307;
 font = cv2.FONT_HERSHEY_SIMPLEX
 
 GPIO.setmode(GPIO.BCM)
@@ -25,8 +25,8 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
     
     if input_state == True:
         i+=1
-        print 'BG_C_'+ str(i) +'.png Saved!... waiting 1 seconds'
-        cv2.imwrite('BG/BG_C_'+ str(i) +'.png',image)
+        print 'Traffic_'+ str(i) +'.png Saved!... waiting 1 seconds'
+        cv2.imwrite('TRAFFIC/Traffic'+ str(i) +'.png',image)
         time.sleep(1)
    
     key = cv2.waitKey(1) & 0xFF
