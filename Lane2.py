@@ -30,16 +30,17 @@ GPIO.setup(27, GPIO.OUT)
 GPIO.setup(6, GPIO.OUT)
 GPIO.setup(5, GPIO.OUT)
 
-RIGHT_Forward=GPIO.PWM(5, 100)
-RIGHT_Backward=GPIO.PWM(6, 100)
+RIGHT_Forward=GPIO.PWM(5, 1000)
+RIGHT_Backward=GPIO.PWM(6, 1000)
 
-LEFT_Forward=GPIO.PWM(27, 100)
-LEFT_Backward=GPIO.PWM(22, 100)
+LEFT_Forward=GPIO.PWM(27, 1000)
+LEFT_Backward=GPIO.PWM(22, 1000)
 
 LEFT_Forward.start(0)
-RIGHT_Forward.start(0) 
+RIGHT_Forward.start(0)
 LEFT_Backward.start(0)
-RIGHT_Backward.start(0) 
+RIGHT_Backward.start(0)
+
 def forward():
     LEFT_Backward.stop()
     RIGHT_Backward.stop()
@@ -48,23 +49,23 @@ def forward():
     LEFT_Forward.ChangeDutyCycle(20)
     RIGHT_Forward.ChangeDutyCycle(20)
     
-def left():
-    LEFT_Backward.stop()
-    RIGHT_Backward.stop()
-    LEFT_Forward.start(0)
-    RIGHT_Forward.start(0) 
-    LEFT_Forward.ChangeDutyCycle(15)
-    RIGHT_Forward.ChangeDutyCycle(35)
-
 def right():
     LEFT_Backward.stop()
     RIGHT_Backward.stop()
     LEFT_Forward.start(0)
     RIGHT_Forward.start(0) 
-    LEFT_Forward.ChangeDutyCycle(35)
+    LEFT_Forward.ChangeDutyCycle(15)
+    RIGHT_Forward.ChangeDutyCycle(30)
+
+def left():
+    LEFT_Backward.stop()
+    RIGHT_Backward.stop()
+    LEFT_Forward.start(0)
+    RIGHT_Forward.start(0) 
+    LEFT_Forward.ChangeDutyCycle(30)
     RIGHT_Forward.ChangeDutyCycle(15)
     
-def left2():
+def right2():
     LEFT_Backward.stop()
     RIGHT_Backward.stop()
     LEFT_Forward.start(0)
@@ -72,7 +73,7 @@ def left2():
     LEFT_Forward.ChangeDutyCycle(15)
     RIGHT_Forward.ChangeDutyCycle(40)
 
-def right2():
+def left2():
     LEFT_Backward.stop()
     RIGHT_Backward.stop()
     LEFT_Forward.start(0)
@@ -81,36 +82,38 @@ def right2():
     RIGHT_Forward.ChangeDutyCycle(15)
 
 
-def left3():
+def right3():
     RIGHT_Backward.stop()
     LEFT_Forward.stop()
     LEFT_Backward.start(0) 
     RIGHT_Forward.start(0) 
-    LEFT_Backward.ChangeDutyCycle(30)
+    LEFT_Backward.ChangeDutyCycle(0)
     RIGHT_Forward.ChangeDutyCycle(30)
 
-def right3():
+def left3():
     LEFT_Backward.stop()
     RIGHT_Forward.stop()
     RIGHT_Backward.start(0)
     LEFT_Forward.start(0)
-    RIGHT_Backward.ChangeDutyCycle(30)
+    RIGHT_Backward.ChangeDutyCycle(0)
     LEFT_Forward.ChangeDutyCycle(30)
 
 
-def left4():
+def right4():
     RIGHT_Backward.stop()
     LEFT_Forward.stop()
     LEFT_Backward.start(0) 
     RIGHT_Forward.start(0) 
-    LEFT_Backward.ChangeDutyCycle(40)
-    RIGHT_Forward.ChangeDutyCycle(50)
+    LEFT_Backward.ChangeDutyCycle(0)
+    RIGHT_Forward.ChangeDutyCycle(55)
 
-def right4():
+def left4():
     LEFT_Backward.stop()
     RIGHT_Forward.stop()
-    RIGHT_Backward.ChangeDutyCycle(40)
-    LEFT_Forward.ChangeDutyCycle(50)
+    RIGHT_Backward.start(0)
+    LEFT_Forward.start(0)
+    RIGHT_Backward.ChangeDutyCycle(0)
+    LEFT_Forward.ChangeDutyCycle(55)
 
     
 def stop():
@@ -265,43 +268,43 @@ try:
         cv2.putText(image,str(int(RAVG)),(500,200), font, 1,(0,255,0),2)
             
         cv2.imshow("Frame", image)
-        cv2.imshow("LEFT",Ledges)
-        cv2.imshow("Right",Redges)
+        #cv2.imshow("LEFT",Ledges)
+        #v2.imshow("Right",Redges)
         if diff <=50 and diff >= -50:
             print("Forward")
             forward()
 
-        if diff <=-51 and diff >=-100:
-            print("Right")
-            right()
-
-        if diff >=51 and diff <=100:
+        if diff <=-51 and diff >=-90:
             print("Left")
             left()
-                
-        if diff <=-101 and diff >= -149:
-            print("Right2")
-            right2()
 
-        if diff >=101 and diff <=149:
+        if diff >=51 and diff <=90:
+            print("Right")
+            right()
+                
+        if diff <=-91 and diff >= -130:
             print("Left2")
             left2()
 
-        if diff <=-150 and diff >= -199:
-            print("Right3")
-            right3()
+        if diff >=91 and diff <=130:
+            print("Right2")
+            right2()
 
-        if diff >=150 and diff <=199:
+        if diff <=-131 and diff >= -180:
             print("Left3")
             left3()
-            
-        if diff <=-200 and diff >= -999:
-            print("Right4")
-            right4()
 
-        if diff >=200 and diff <=999:
+        if diff >=131 and diff <=180:
+            print("Right3")
+            right3()
+            
+        if diff <=-181 and diff >= -999:
             print("Left4")
             left4()
+
+        if diff >=181 and diff <=999:
+            print("Right4")
+            right4()
 
         if diff >= 1000:
             print("Stop")
