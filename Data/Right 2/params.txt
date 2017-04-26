@@ -1,0 +1,104 @@
+C:\Project>opencv_traincascade -data Data -vec RIGHT.vec -bg RIGHT_BG.txt -n
+s 103 -numNeg 3243 -numStages 20 -w 48 -h 48 -featureType LBP -precalcValBuf
+ 2048 -precalcIdxBufSize 2048 -minHitRate 0.99
+PARAMETERS:
+cascadeDirName: Data
+vecFileName: RIGHT.vec
+bgFileName: RIGHT_BG.txt
+numPos: 103
+numNeg: 3243
+numStages: 20
+precalcValBufSize[Mb] : 2048
+precalcIdxBufSize[Mb] : 2048
+acceptanceRatioBreakValue : -1
+stageType: BOOST
+featureType: LBP
+sampleWidth: 48
+sampleHeight: 48
+boostType: GAB
+minHitRate: 0.99
+maxFalseAlarmRate: 0.5
+weightTrimRate: 0.95
+maxDepth: 1
+maxWeakCount: 100
+Number of unique features given windowSize [48,48] : 141376
+
+===== TRAINING 0-stage =====
+<BEGIN
+POS count : consumed   103 : 103
+NEG count : acceptanceRatio    3243 : 1
+Precalculation time: 53.913
++----+---------+---------+
+|  N |    HR   |    FA   |
++----+---------+---------+
+|   1|        1|        1|
++----+---------+---------+
+|   2|        1|0.00246685|
++----+---------+---------+
+END>
+Training until now has taken 0 days 0 hours 1 minutes 19 seconds.
+
+===== TRAINING 1-stage =====
+<BEGIN
+POS count : consumed   103 : 103
+NEG count : acceptanceRatio    3243 : 0.0364698
+Precalculation time: 52.306
++----+---------+---------+
+|  N |    HR   |    FA   |
++----+---------+---------+
+|   1|        1|        1|
++----+---------+---------+
+|   2|        1|0.00555042|
++----+---------+---------+
+END>
+Training until now has taken 0 days 0 hours 2 minutes 44 seconds.
+
+===== TRAINING 2-stage =====
+<BEGIN
+POS count : consumed   103 : 103
+NEG count : acceptanceRatio    3243 : 0.00343815
+Precalculation time: 53.121
++----+---------+---------+
+|  N |    HR   |    FA   |
++----+---------+---------+
+|   1|        1|        1|
++----+---------+---------+
+|   2|        1|0.0021585|
++----+---------+---------+
+END>
+Training until now has taken 0 days 0 hours 5 minutes 3 seconds.
+
+===== TRAINING 3-stage =====
+<BEGIN
+POS count : consumed   103 : 103
+NEG count : acceptanceRatio    3243 : 0.000173287
+Precalculation time: 45.601
++----+---------+---------+
+|  N |    HR   |    FA   |
++----+---------+---------+
+|   1|        1|        1|
++----+---------+---------+
+|   2|        1|0.00770891|
++----+---------+---------+
+END>
+Training until now has taken 0 days 0 hours 13 minutes 33 seconds.
+
+===== TRAINING 4-stage =====
+<BEGIN
+POS count : consumed   103 : 103
+NEG count : acceptanceRatio    3243 : 3.15548e-06
+Precalculation time: 52.701
++----+---------+---------+
+|  N |    HR   |    FA   |
++----+---------+---------+
+|   1|        1|        1|
++----+---------+---------+
+|   2|        1|0.00740056|
++----+---------+---------+
+END>
+Training until now has taken 0 days 7 hours 42 minutes 18 seconds.
+
+===== TRAINING 5-stage =====
+<BEGIN
+POS count : consumed   103 : 103
+Train dataset for temp stage can not be filled. Branch training terminated.

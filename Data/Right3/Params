@@ -1,0 +1,86 @@
+parallels@ubuntu:~/Desktop/Project$ opencv_traincascade -data Data -vec RIGHT.vec -bg RIGHT_BG.txt -numPos 103 -numNeg 3243 -numStages 15 -w 48 -h 48 -featureType LBP -precalcValBufSize 2048 -precalcIdxBufSize 2048
+PARAMETERS:
+cascadeDirName: Data
+vecFileName: RIGHT.vec
+bgFileName: RIGHT_BG.txt
+numPos: 103
+numNeg: 3243
+numStages: 15
+precalcValBufSize[Mb] : 2048
+precalcIdxBufSize[Mb] : 2048
+stageType: BOOST
+featureType: LBP
+sampleWidth: 48
+sampleHeight: 48
+boostType: GAB
+minHitRate: 0.995
+maxFalseAlarmRate: 0.5
+weightTrimRate: 0.95
+maxDepth: 1
+maxWeakCount: 100
+
+===== TRAINING 0-stage =====
+<BEGIN
+POS count : consumed   103 : 103
+NEG count : acceptanceRatio    3243 : 1
+Precalculation time: 19
++----+---------+---------+
+|  N |    HR   |    FA   |
++----+---------+---------+
+|   1|        1|        1|
++----+---------+---------+
+|   2|        1|0.00308356|
++----+---------+---------+
+END>
+Training until now has taken 0 days 0 hours 1 minutes 24 seconds.
+
+===== TRAINING 1-stage =====
+<BEGIN
+POS count : consumed   103 : 103
+NEG count : acceptanceRatio    3243 : 0.0658143
+Precalculation time: 18
++----+---------+---------+
+|  N |    HR   |    FA   |
++----+---------+---------+
+|   1|        1|        1|
++----+---------+---------+
+|   2|        1|0.0070922|
++----+---------+---------+
+END>
+Training until now has taken 0 days 0 hours 2 minutes 44 seconds.
+
+===== TRAINING 2-stage =====
+<BEGIN
+POS count : consumed   103 : 103
+NEG count : acceptanceRatio    3243 : 0.00757298
+Precalculation time: 19
++----+---------+---------+
+|  N |    HR   |    FA   |
++----+---------+---------+
+|   1|        1|        1|
++----+---------+---------+
+|   2|        1|0.00832562|
++----+---------+---------+
+END>
+Training until now has taken 0 days 0 hours 4 minutes 9 seconds.
+
+===== TRAINING 3-stage =====
+<BEGIN
+POS count : consumed   103 : 103
+NEG count : acceptanceRatio    3243 : 0.000211883
+Precalculation time: 18
++----+---------+---------+
+|  N |    HR   |    FA   |
++----+---------+---------+
+|   1|        1|        1|
++----+---------+---------+
+|   2|        1|0.0141844|
++----+---------+---------+
+END>
+Training until now has taken 0 days 0 hours 7 minutes 45 seconds.
+
+===== TRAINING 4-stage =====
+<BEGIN
+POS count : consumed   103 : 103
+NEG count : acceptanceRatio    3243 : 5.73066e-06
+Required leaf false alarm rate achieved. Branch training terminated.
