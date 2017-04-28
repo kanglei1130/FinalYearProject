@@ -35,18 +35,21 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
         h=h*.95
         h=int(h)
         dist = (((3.04*71.5*480)/(h*2.76))-55)/10
-        cv2.putText(image,'LEFT: '+str(int(dist))+"cm",(x,y+h+25), font, 1,(0,255,0))
-        cv2.rectangle(image, (x,y), (x+w, y+h), (0,255,0),2)
+        if dist > 7 and dist < 20:
+            cv2.putText(image,'LEFT: '+str(int(dist))+"cm",(x,y+h+25), font, 1,(0,255,0))
+            cv2.rectangle(image, (x,y), (x+w, y+h), (0,255,0),2)
     
     for (x,y,w,h) in RIGHT:
         dist = (((3.04*70.5*480)/(h*2.76))-55)/10
-        cv2.putText(image,'RIGHT: '+str(int(dist))+"cm",(x,y+h+25), font, 1,(255,0,0))
-        cv2.rectangle(image, (x,y), (x+w, y+h), (255,0,0),2)
+        if dist > 7 and dist < 20:
+            cv2.putText(image,'RIGHT: '+str(int(dist))+"cm",(x,y+h+25), font, 1,(255,0,0))
+            cv2.rectangle(image, (x,y), (x+w, y+h), (255,0,0),2)
         
     for (x,y,w,h) in STOP:
         dist = (((3.04*65*480)/(h*2.76))-55)/10
-        cv2.putText(image,'STOP: ' +str(int(dist))+"cm",(x,y+h+25), font, 1,(0,0,255))
-        cv2.rectangle(image, (x,y), (x+w, y+h), (0,0,255),2)
+        if dist > 7 and dist < 20:
+            cv2.putText(image,'STOP: ' +str(int(dist))+"cm",(x,y+h+25), font, 1,(0,0,255))
+            cv2.rectangle(image, (x,y), (x+w, y+h), (0,0,255),2)
 
     for (x,y,w,h) in TRAFFIC:
         h=h*1.08
@@ -55,24 +58,24 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
         y=int(y)
         y2 = int(y+h/2)
         dist = (((3.04*61*480)/(h*2.76))-55)/10
-        cv2.putText(image,'TRAFFIC: ' +str(int(dist))+"cm",(x,y+h+25), font, 1,(0,255,255))
-        cv2.rectangle(image, (x,y), (x+w, y+h), (255,0,0),2)
-        cv2.line(image,(x,y2),((x+w),y2), (255,0,0),2)
-        trafficROI = image[y:(y+h),x:(x+w)]
-        image2 = cv2.cvtColor(trafficROI,  cv2.COLOR_BGR2GRAY)
-        min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(image2)
-        
-        px = max_loc[0]+x
-        py = max_loc[1]+y
-        if max_val > 250 and py < y2:
-            cv2.rectangle(image, (x,y), (x+w, y+h), (0,0,255),2)
-            cv2.line(image,(x,y2),((x+w),y2), (0,0,255),2)
-            cv2.circle(image, (px,py), 10, (0, 0, 255), 2)
-            
-        if max_val > 250 and py > y2:
-            cv2.rectangle(image, (x,y), (x+w, y+h), (0,255,0),2)
-            cv2.line(image,(x,y2),((x+w),y2), (0,255,0),2)
-            cv2.circle(image, (px,py), 10, (0, 255, 0), 2)
+        if dist > 7 and dist < 20:
+            cv2.putText(image,'TRAFFIC: ' +str(int(dist))+"cm",(x,y+h+25), font, 1,(0,255,255))
+            cv2.rectangle(image, (x,y), (x+w, y+h), (255,0,0),2)
+            cv2.line(image,(x,y2),((x+w),y2), (255,0,0),2)
+            trafficROI = image[y:(y+h),x:(x+w)]
+            image2 = cv2.cvtColor(trafficROI,  cv2.COLOR_BGR2GRAY)
+            min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(image2)
+            px = max_loc[0]+x
+            py = max_loc[1]+y
+            if max_val > 250 and py < y2:
+                cv2.rectangle(image, (x,y), (x+w, y+h), (0,0,255),2)
+                cv2.line(image,(x,y2),((x+w),y2), (0,0,255),2)
+                cv2.circle(image, (px,py), 10, (0, 0, 255), 2)
+                
+            if max_val > 250 and py > y2:
+                cv2.rectangle(image, (x,y), (x+w, y+h), (0,255,0),2)
+                cv2.line(image,(x,y2),((x+w),y2), (0,255,0),2)
+                cv2.circle(image, (px,py), 10, (0, 255, 0), 2)
             
 
 
