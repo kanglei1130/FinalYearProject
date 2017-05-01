@@ -53,8 +53,8 @@ def forward():
     RIGHT_Backward.stop()
     LEFT_Forward.start(0)
     RIGHT_Forward.start(0) 
-    LEFT_Forward.ChangeDutyCycle(15)
-    RIGHT_Forward.ChangeDutyCycle(15)
+    LEFT_Forward.ChangeDutyCycle(20)
+    RIGHT_Forward.ChangeDutyCycle(20)
     
 def right():
     LEFT_Backward.stop()
@@ -264,7 +264,7 @@ try:
                                 accum.append(image[YI,XI])
                                 
                     accum = np.mean(accum)
-                    if accum < 80:
+                    if accum < 50:
                         cv2.line(image,(x1,y1+220),(x1-32,y1+220),(0,255,0),2)
                         cv2.line(image,(x1-32,y1+220),(x2-32,y2+220),(0,255,0),2)
                         cv2.line(image,(x2,y2+220),(x2-32,y2+220),(0,255,0),2)
@@ -320,7 +320,7 @@ try:
                                 accum2.append(image[YI,XI])
                                 
                     accum2 = np.mean(accum2)
-                    if accum2 < 60:
+                    if accum2 < 50:
                         cv2.line(image,(x1+440,y1+220),(x1+440+32,y1+220),(0,255,0),2)
                         cv2.line(image,(x1+440+32,y1+220),(x2+440+32,y2+220),(0,255,0),2)
                         cv2.line(image,(x2+440,y2+220),(x2+440+32,y2+220),(0,255,0),2)
@@ -366,23 +366,23 @@ try:
             right_sign()
             
         if stop_flag == 0 and left_flag == 0 and right_flag == 0:
-            if diff <=50 and diff >= -50:
+            if diff <=60 and diff >= -60:
     ##            print("Forward")
                 forward()
 
-            if diff <=-51 and diff >=-90:
+            if diff <=-61 and diff >=-110:
     ##            print("Left")
                 left()
 
-            if diff >=51 and diff <=90:
+            if diff >=61 and diff <=110:
     ##            print("Right")
                 right()
                     
-            if diff <=-91 and diff >= -150:
+            if diff <=-111 and diff >= -150:
     ##            print("Left2")
                 left2()
 
-            if diff >=91 and diff <=150:
+            if diff >=111 and diff <=150:
     ##            print("Right2")
                 right2()
 
