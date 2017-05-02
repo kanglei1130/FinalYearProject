@@ -115,7 +115,7 @@ def right_sign():
     RIGHT_Forward.start(0) 
     LEFT_Backward.ChangeDutyCycle(50)
     RIGHT_Forward.ChangeDutyCycle(50)
-    time.sleep(2)
+    #time.sleep(2)
     LEFT_Backward.ChangeDutyCycle(0)
     RIGHT_Forward.ChangeDutyCycle(0)
     right_flag = 0
@@ -129,7 +129,7 @@ def left_sign():
     LEFT_Forward.start(0)
     RIGHT_Backward.ChangeDutyCycle(50)
     LEFT_Forward.ChangeDutyCycle(50)
-    time.sleep(2)
+    #time.sleep(2)
     RIGHT_Backward.ChangeDutyCycle(0)
     LEFT_Forward.ChangeDutyCycle(0)
     left_flag = 0
@@ -142,7 +142,7 @@ def stop():
     RIGHT_Forward.stop()
     RIGHT_Backward.stop()
     LEFT_Forward.stop()
-    time.sleep(1)
+    #time.sleep(1)
 
 try:
     for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
@@ -200,6 +200,7 @@ try:
             if dist > 4 and dist < 40:
                 cv2.putText(image,'STOP: ' +str(int(dist))+"cm",(x,y+h+25), font, 1,(0,0,255))
                 cv2.rectangle(image, (x,y), (x+w, y+h), (0,0,255),2)
+                print("Stop Sign Detected")
                 if dist <= 25:
                     stop_flag =1
           
@@ -264,7 +265,7 @@ try:
                                 accum.append(image[YI,XI])
                                 
                     accum = np.mean(accum)
-                    if accum < 50:
+                    if accum > 150:
                         cv2.line(image,(x1,y1+220),(x1-32,y1+220),(0,255,0),2)
                         cv2.line(image,(x1-32,y1+220),(x2-32,y2+220),(0,255,0),2)
                         cv2.line(image,(x2,y2+220),(x2-32,y2+220),(0,255,0),2)
@@ -320,7 +321,7 @@ try:
                                 accum2.append(image[YI,XI])
                                 
                     accum2 = np.mean(accum2)
-                    if accum2 < 50:
+                    if accum2 > 150:
                         cv2.line(image,(x1+440,y1+220),(x1+440+32,y1+220),(0,255,0),2)
                         cv2.line(image,(x1+440+32,y1+220),(x2+440+32,y2+220),(0,255,0),2)
                         cv2.line(image,(x2+440,y2+220),(x2+440+32,y2+220),(0,255,0),2)
