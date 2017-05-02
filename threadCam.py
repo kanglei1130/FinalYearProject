@@ -49,92 +49,101 @@ def forward():
     RIGHT_Forward.start(0) 
     LEFT_Forward.ChangeDutyCycle(20)
     RIGHT_Forward.ChangeDutyCycle(20)
+    time.sleep(0.3)
+    LEFT_Forward.ChangeDutyCycle(0)
+    RIGHT_Forward.ChangeDutyCycle(0)
     
 def right():
     LEFT_Backward.stop()
     RIGHT_Backward.stop()
     LEFT_Forward.start(0)
     RIGHT_Forward.start(0) 
-    LEFT_Forward.ChangeDutyCycle(15)
-    RIGHT_Forward.ChangeDutyCycle(25)
+    LEFT_Forward.ChangeDutyCycle(20)
+    RIGHT_Forward.ChangeDutyCycle(20+turnRate)
+    time.sleep(0.3)
+    LEFT_Forward.ChangeDutyCycle(0)
+    RIGHT_Forward.ChangeDutyCycle(0)
+    
 
 def left():
     LEFT_Backward.stop()
     RIGHT_Backward.stop()
     LEFT_Forward.start(0)
     RIGHT_Forward.start(0) 
-    LEFT_Forward.ChangeDutyCycle(25)
-    RIGHT_Forward.ChangeDutyCycle(15)
+    LEFT_Forward.ChangeDutyCycle(20+turnRate)
+    RIGHT_Forward.ChangeDutyCycle(20)
+    time.sleep(0.3)
+    LEFT_Forward.ChangeDutyCycle(0)
+    RIGHT_Forward.ChangeDutyCycle(0)
     
-def right2():
-    LEFT_Backward.stop()
-    RIGHT_Backward.stop()
-    LEFT_Forward.start(0)
-    RIGHT_Forward.start(0) 
-    LEFT_Forward.ChangeDutyCycle(15)
-    RIGHT_Forward.ChangeDutyCycle(35)
-
-def left2():
-    LEFT_Backward.stop()
-    RIGHT_Backward.stop()
-    LEFT_Forward.start(0)
-    RIGHT_Forward.start(0) 
-    LEFT_Forward.ChangeDutyCycle(35)
-    RIGHT_Forward.ChangeDutyCycle(15)
-
-
-def right3():
-    RIGHT_Backward.stop()
-    LEFT_Forward.stop()
-    LEFT_Backward.start(0) 
-    RIGHT_Forward.start(0) 
-    LEFT_Backward.ChangeDutyCycle(15)
-    RIGHT_Forward.ChangeDutyCycle(30)
-
-def left3():
-    LEFT_Backward.stop()
-    RIGHT_Forward.stop()
-    RIGHT_Backward.start(0)
-    LEFT_Forward.start(0)
-    RIGHT_Backward.ChangeDutyCycle(15)
-    LEFT_Forward.ChangeDutyCycle(30)
+##def right2():
+##    LEFT_Backward.stop()
+##    RIGHT_Backward.stop()
+##    LEFT_Forward.start(0)
+##    RIGHT_Forward.start(0) 
+##    LEFT_Forward.ChangeDutyCycle(15)
+##    RIGHT_Forward.ChangeDutyCycle(35)
+##
+##def left2():
+##    LEFT_Backward.stop()
+##    RIGHT_Backward.stop()
+##    LEFT_Forward.start(0)
+##    RIGHT_Forward.start(0) 
+##    LEFT_Forward.ChangeDutyCycle(35)
+##    RIGHT_Forward.ChangeDutyCycle(15)
+##
+##
+##def right3():
+##    RIGHT_Backward.stop()
+##    LEFT_Forward.stop()
+##    LEFT_Backward.start(0) 
+##    RIGHT_Forward.start(0) 
+##    LEFT_Backward.ChangeDutyCycle(15)
+##    RIGHT_Forward.ChangeDutyCycle(30)
+##
+##def left3():
+##    LEFT_Backward.stop()
+##    RIGHT_Forward.stop()
+##    RIGHT_Backward.start(0)
+##    LEFT_Forward.start(0)
+##    RIGHT_Backward.ChangeDutyCycle(15)
+##    LEFT_Forward.ChangeDutyCycle(30)
 
 
 def right_sign():
-    print ("Right sign action")
-    stop()
+##    print ("Right sign action")
     RIGHT_Backward.stop()
     LEFT_Forward.stop()
     LEFT_Backward.start(0) 
     RIGHT_Forward.start(0) 
     LEFT_Backward.ChangeDutyCycle(50)
     RIGHT_Forward.ChangeDutyCycle(50)
-    #time.sleep(2)
+    time.sleep(2)
     LEFT_Backward.ChangeDutyCycle(0)
     RIGHT_Forward.ChangeDutyCycle(0)
     right_flag = 0
     
 def left_sign():
-    print ("left sign action")
-    stop()
+##    print ("left sign action")
     LEFT_Backward.stop()
     RIGHT_Forward.stop()
     RIGHT_Backward.start(0)
     LEFT_Forward.start(0)
     RIGHT_Backward.ChangeDutyCycle(50)
     LEFT_Forward.ChangeDutyCycle(50)
-    #time.sleep(2)
+    time.sleep(2)
     RIGHT_Backward.ChangeDutyCycle(0)
     LEFT_Forward.ChangeDutyCycle(0)
     left_flag = 0
     
 def stop():
-    #print ("Stop sign action")
+    print ("Stop sign action")
     LEFT_Backward.stop()
     RIGHT_Forward.stop()
     RIGHT_Backward.stop()
     LEFT_Forward.stop()
-    #time.sleep(1)
+    time.sleep(1)
+    stop_flag = 0
 
 
 def getStream():
@@ -150,6 +159,10 @@ def getStream():
         global trafficFrameFlag
         global leftLaneFlag
         global rightLaneFlag
+        global stop_flag
+        global left_flag 
+        global right_flag
+        global turnRate
         RAVG = 1
         LAVG = -1
         for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
@@ -161,18 +174,81 @@ def getStream():
                 rightFrameFlag = 1
                 stopFrameFlag = 1
                 trafficFrameFlag = 1
+                if RAVG == 0:
+                        RAVG = 270
+                if LAVG == 0:
+                        LAVG = -270
                 diff = RAVG+LAVG
                 if(diff != 0.0):
                         diff = int(diff)
-                        print("Lane Diff: "diff)
+##                        print("Lane Diff: "+str(diff))
+                        
+                        if stop_flag == 1:
+                            print("Stop sign detected")
+                            stop()
+                            
+                        if left_flag == 1:
+                            left_sign()
+                        if right_flag == 1:
+                            right_sign()
+                            
+                        if stop_flag == 0 and left_flag == 0 and right_flag == 0:
+                                absDiff =abs(diff)
+                                m = 0.05
+                                turnRate = m*absDiff
+                                if turnRate > 30:
+                                        turnRate = 30
+##                                print("Turn Rate: "+str(turnRate))
+##                                if diff < 30 and diff >-30:
+##                                        forward()
+                                if diff == 0:
+                                        forward()
+                                elif diff < 0:
+                                        left()
+##                                        print("Left")
+                                elif diff > 0:
+                                        right()
+##                                        print("Right")
+
+                                        
+##                            if diff <=100 and diff >= -100:
+##                                print("Forward")
+##                                forward()
+##                            if diff <=-101 and diff >=-150:
+##                                print("Left")
+##                                left()
+##
+##                            if diff >=101 and diff <=150:
+##                                print("Right")
+##                                right()
+##                                    
+##                            if diff <=-151 and diff >= -999:
+##                                print("Left2")
+##                                left2()
+##
+##                            if diff >=151 and diff <=999:
+##                                print("Right2")
+##                                right2()
+##                            if diff >= 1000:
+##                                print("Stop")
+##                                stop()
+##                                
+##                            if diff <= -1000:
+##                                print("Stop")
+##                                stop()
+                        
+                        right_flag = 0
+                        left_flag = 0
+                        
                 leftLaneFlag = 1
                 rightLaneFlag = 1
 
                 key = cv2.waitKey(1) & 0xFF
                 rawCapture.truncate(0)
 def Left():
-        print("Start detecting signs: Left.")
+        print("Start detecing signs: Left.")
         global leftFrameFlag
+        global left_flag
         global SROI
         while(1):
                 if(leftFrameFlag == 1):
@@ -185,13 +261,14 @@ def Left():
                                 cv2.putText(SROI,'LEFT: '+str(int(dist))+"cm",(x,y+h+25), font, 1,(0,255,0))
                                 print('LEFT: '+str(int(dist))+"cm")
                                 cv2.rectangle(SROI, (x,y), (x+w, y+h), (0,255,0),2)
-                                cv2.imshow("Image", SROI) 
                                 if dist <= 25:
                                     left_flag =1
                         leftFrameFlag = 0;
+                        
 def Right():
         print("Start detecting signs: Right.")
         global rightFrameFlag
+        global right_flag
         global SROI
         while(1):
                 if(rightFrameFlag == 1):
@@ -213,6 +290,7 @@ def Stop():
         print("Start detecting signs: Stop")
         i =1
         global stopFrameFlag
+        global stop_flag
         global SROI
         while(1):
                 if(stopFrameFlag == 1):
@@ -224,10 +302,9 @@ def Stop():
                                 print('STOP: '+str(int(dist))+"cm")
                                 cv2.rectangle(SROI, (x,y), (x+w, y+h), (0,0,255),2)
                                 stopimg = SROI
-                                if dist <= 25:
+                                if dist <= 25:                              
                                     stop_flag =1
-                        
-                        #cv2.imshow("Image", stopimg)
+                        cv2.imshow("Image", stopimg)
                         stopFrameFlag = 0;
 
 
@@ -287,11 +364,11 @@ def leftLane():
                         cv2.normalize(LROI,LROI,0,255,cv2.NORM_MINMAX)
                         Lgray = cv2.cvtColor(LROI,cv2.COLOR_BGR2GRAY)
                         Ledges = cv2.Canny(Lgray,100,200,apertureSize = 3)
-                        Llines = cv2.HoughLinesP(Ledges,1,np.pi/180,5,6,15)
+                        Llines = cv2.HoughLinesP(Ledges,1,np.pi/180,5,4,20)
                         
                         try:
                             LAVGT = 0
-                            
+                            i = 0
                             for x1,y1,x2,y2 in Llines[0]:
                                 angle = np.arctan2(y2 - y1, x2 - x1) * 180. / np.pi
                                 if(angle >= 20 and angle <= 160 or angle <= -20 and angle >= -160 ):                                     
@@ -315,30 +392,31 @@ def leftLane():
                                             if XI >=0:
                                                 accum.append(LROI[YI,XI])           
                                     accum = np.mean(accum)
-                                    if accum > 150:
+##                                    if accum < 50:
+                                    if accum > 120:
                                         cv2.line(LROI,(x1,y1),(x1-32,y1),(0,255,0),2)
                                         cv2.line(LROI,(x1-32,y1),(x2-32,y2),(0,255,0),2)
                                         cv2.line(LROI,(x2,y2),(x2-32,y2),(0,255,0),2)
                                         Left_CAVG.append(LC)
                                         Left_MAVG.append(LM)
-                            
-                            LC = np.mean(Left_CAVG)
-                            LM = np.mean(Left_MAVG)
-                            if math.isnan(LM) == 1:
-                                LM = LM_OLD
-                            if math.isnan(LC) == 1:
-                                LC = LC_OLD
-                            LX = (150 - LC) / LM
-                            LAVG = LX-200
-                            LAVG_OLD = LAVG
-                            LC_OLD = LC
-                            LM_OLD = LM
-                            Left_CAVG =[]
-                            Left_MAVG =[]
-                            
-                        except:
-                            LAVG = LAVG_OLD
+                                        i=i+1                     
+                            if i !=0 :
+                                    LC = np.mean(Left_CAVG)
+                                    LM = np.mean(Left_MAVG)
+                                    LX = (150 - LC) / LM
+                                    LAVG = LX -200
+                                    LAVG_OLD = LAVG
+                                    LC_OLD = LC
+                                    LM_OLD = LM
+                                    Left_CAVG =[]
+                                    Left_MAVG =[]
+        
+                            else:
+                                    LAVG = -270
+                        except:                         
+                            LAVG = -271
                         cv2.putText(LROI,str(int(LAVG)),(100,200), font, 1,(255,255,0),2)  
+                          
                         cv2.imshow("Left", LROI)
                         leftLaneFlag = 0;
 
@@ -358,10 +436,11 @@ def rightLane():
                         cv2.normalize(RROI,RROI,0,255,cv2.NORM_MINMAX)
                         Rgray = cv2.cvtColor(RROI,cv2.COLOR_BGR2GRAY)
                         Redges = cv2.Canny(Rgray,100,200,apertureSize = 3)
-                        Rlines = cv2.HoughLinesP(Redges,1,np.pi/180,10,6,30)
+                        Rlines = cv2.HoughLinesP(Redges,1,np.pi/180,10,4,20)
                       
                         try:
                             RAVGT = 0
+                            i = 0
                             for x1,y1,x2,y2 in Rlines[0]:
 
                                 angle = np.arctan2(y2 - y1, x2 - x1) * 180. / np.pi
@@ -385,38 +464,36 @@ def rightLane():
                                         for XI in range (X, X+30):
                                             if XI <=199:
                                                 accum2.append(RROI[YI,XI])
-                                                
+                                         
                                     accum2 = np.mean(accum2)
-                                    if accum2 > 150:
+##                                    if accum2 < 70:
+                                    if accum2 > 120:
                                         cv2.line(RROI,(x1,y1),(x1+32,y1),(0,255,0),2)
                                         cv2.line(RROI,(x1+32,y1),(x2+32,y2),(0,255,0),2)
                                         cv2.line(RROI,(x2,y2),(x2+32,y2),(0,255,0),2)
                                         Right_CAVG.append(RC)
                                         Right_MAVG.append(RM)
+                                        i=i+1                     
+                            if i !=0 :
+                                    RC = np.mean(Right_CAVG)
+                                    RM = np.mean(Right_MAVG)
+                                    RX = (150 - RC) / RM
+                                    RAVG = RX
+                                    RAVG_OLD = RAVG
                                     
-                            RC = np.mean(Right_CAVG)
-                            RM = np.mean(Right_MAVG)
-                            
-                            if math.isnan(RM) == 1:
-                                RM = RM_OLD
-                            if math.isnan(RC) == 1:
-                                RC = RC_OLD
-
-                                
-                            RX = (150 - RC) / RM
-                            RAVG = RX
-                            RAVG_OLD = RAVG
-                            RC_OLD = RC
-                            RM_OLD = RM
-                            Right_MAVG=[]
-                            Right_CAVG=[]
-
+                                    RC_OLD = RC
+                                    RM_OLD = RM
+                                    Right_CAVG =[]
+                                    Right_MAVG =[]
+        
+                            else:
+                                    RAVG = 270
                         except:
-                            RAVG = RAVG_OLD
+                            RAVG = 271
+                            
                         cv2.putText(RROI,str(int(RAVG)),(10,200), font, 1,(255,255,0),2)                            
                         cv2.imshow("Right", RROI)
                         rightLaneFlag = 0;
-                        
                         
 getStream = Thread(target=getStream)
 Left = Thread(target=Left)
@@ -428,13 +505,13 @@ rightLane = Thread(target=rightLane)
 
 getStream.start()
 time.sleep(2)
-Left.start()
-time.sleep(.5)
-Right.start()
-time.sleep(.5)
+##Left.start()
+##time.sleep(.5)
+##Right.start()
+##time.sleep(.5)
 Stop.start()
 time.sleep(.5)
-Traffic.start()
+##Traffic.start()
 time.sleep(.5)
 leftLane.start()
 time.sleep(.5)
